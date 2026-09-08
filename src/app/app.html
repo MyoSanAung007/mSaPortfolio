@@ -414,27 +414,40 @@
           </a>
         </div>
       </div>
-      <form class="contact-form" (submit)="$event.preventDefault()">
+      <form class="contact-form" (submit)="onSubmit(); $event.preventDefault()">
         <div class="form-row">
           <div class="form-group">
             <label for="name">Name</label>
-            <input id="name" type="text" placeholder="Your name" />
+            <input id="name" name="name" type="text" placeholder="Your name" [(ngModel)]="formData.name" required />
           </div>
           <div class="form-group">
             <label for="email">Email</label>
-            <input id="email" type="email" placeholder="your&#64;email.com" />
+            <input id="email" name="email" type="email" placeholder="your&#64;email.com" [(ngModel)]="formData.email" required />
           </div>
         </div>
         <div class="form-group">
           <label for="subject">Subject</label>
-          <input id="subject" type="text" placeholder="What's this about?" />
+          <input id="subject" name="subject" type="text" placeholder="What's this about?" [(ngModel)]="formData.subject" required />
         </div>
         <div class="form-group">
           <label for="message">Message</label>
-          <textarea id="message" rows="5" placeholder="Tell me more..."></textarea>
+          <textarea id="message" name="message" rows="5" placeholder="Tell me more..." [(ngModel)]="formData.message" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary btn-full">Send Message 🚀</button>
+
+        <!-- Success / Error feedback -->
+        <div class="form-feedback form-success" *ngIf="submitSuccess">
+          ✅ Message sent! I'll get back to you soon.
+        </div>
+        <div class="form-feedback form-error" *ngIf="submitError">
+          ❌ Something went wrong. Please try again or email me directly.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Send Message 🚀</span>
+          <span *ngIf="isSubmitting">Sending…</span>
+        </button>
       </form>
+
     </div>
   </div>
 </section>
