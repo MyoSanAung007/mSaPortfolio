@@ -18,7 +18,11 @@ export class App implements AfterViewInit, OnDestroy {
    * 🎨 3D Liquid Glass Theme Setting:
    * Set to 'clear' (Default Blue/Cyan), 'iridescent' (Cyber Violet/Pink), or 'golden' (Warm Honey/Amber)
    */
-  readonly liquidTheme: 'clear' | 'iridescent' | 'golden' = 'clear';
+
+  readonly liquidTheme = 'iridescent';
+  // readonly liquidTheme = 'golden';
+  // readonly liquidTheme = 'clear';
+  // readonly liquidTheme: 'clear' | 'iridescent' | 'golden' = 'clear';
 
   @ViewChild('liquidCanvas') canvasRef?: ElementRef<HTMLCanvasElement>;
 
@@ -60,7 +64,7 @@ export class App implements AfterViewInit, OnDestroy {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
