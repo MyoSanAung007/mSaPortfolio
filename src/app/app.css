@@ -289,18 +289,108 @@
     border-radius: 0 0 40px 40px;
 }
 
-.hero-liquid-canvas {
-    position: absolute;
+/* ============= GLOBAL 3D LIQUID GLASS BACKGROUND ============= */
+.liquid-glass-bg {
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.95;
+    overflow: hidden;
+}
+
+.liquid-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(85px);
+    opacity: 0.50;
+    will-change: transform, border-radius;
+}
+
+.liquid-glass-bg .blob-1 {
+    width: 650px;
+    height: 650px;
+    top: -100px;
+    left: -100px;
+    background: radial-gradient(circle, #06b6d4 0%, #1e40af 65%, transparent 85%);
+    animation: liquidMorph1 22s infinite ease-in-out alternate;
+}
+
+.liquid-glass-bg .blob-2 {
+    width: 700px;
+    height: 700px;
+    top: 35%;
+    right: -150px;
+    background: radial-gradient(circle, #3b82f6 0%, #6366f1 60%, transparent 85%);
+    animation: liquidMorph2 26s infinite ease-in-out alternate;
+}
+
+.liquid-glass-bg .blob-3 {
+    width: 600px;
+    height: 600px;
+    bottom: -120px;
+    left: 15%;
+    background: radial-gradient(circle, #0284c7 0%, #0d9488 60%, transparent 85%);
+    animation: liquidMorph3 20s infinite ease-in-out alternate;
+}
+
+.liquid-glass-bg .blob-4 {
+    width: 550px;
+    height: 550px;
+    top: 70%;
+    left: -120px;
+    background: radial-gradient(circle, #4f46e5 0%, #2563eb 60%, transparent 85%);
+    animation: liquidMorph1 28s infinite ease-in-out alternate-reverse;
+}
+
+.liquid-glass-overlay {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(75px) saturate(180%);
+    -webkit-backdrop-filter: blur(75px) saturate(180%);
+}
+
+@keyframes liquidMorph1 {
+    0%, 100% {
+        border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    33% {
+        border-radius: 70% 30% 46% 54% / 30% 29% 71% 70%;
+        transform: translate(70px, -50px) rotate(120deg) scale(1.12);
+    }
+    66% {
+        border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
+        transform: translate(-50px, 40px) rotate(240deg) scale(0.94);
+    }
+}
+
+@keyframes liquidMorph2 {
+    0%, 100% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    50% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+        transform: translate(-80px, 60px) rotate(180deg) scale(1.18);
+    }
+}
+
+@keyframes liquidMorph3 {
+    0%, 100% {
+        border-radius: 50% 50% 30% 70% / 50% 40% 60% 50%;
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+        transform: translate(60px, 50px) scale(1.1);
+    }
 }
 
 .hero-bg-glow {
+    display: none;
     position: absolute;
     border-radius: 50%;
     pointer-events: none;

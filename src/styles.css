@@ -26,10 +26,11 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: #070c14;
 }
 
 body {
-  background-color: #0a111a;
+  background-color: transparent;
   color: var(--text-primary);
   font-family: var(--font-body);
   line-height: 1.6;
