@@ -14,6 +14,12 @@ import { CommonModule } from '@angular/common';
 export class App implements AfterViewInit, OnDestroy {
   readonly title = 'Myo San Aung | Portfolio';
 
+  /**
+   * 🎨 3D Liquid Glass Theme Setting:
+   * Set to 'clear' (Default Blue/Cyan), 'iridescent' (Cyber Violet/Pink), or 'golden' (Warm Honey/Amber)
+   */
+  readonly liquidTheme: 'clear' | 'iridescent' | 'golden' = 'clear';
+
   @ViewChild('liquidCanvas') canvasRef?: ElementRef<HTMLCanvasElement>;
 
   private gl: WebGLRenderingContext | null = null;
@@ -32,6 +38,7 @@ export class App implements AfterViewInit, OnDestroy {
   private resUniLoc: WebGLUniformLocation | null = null;
   private mouseUniLoc: WebGLUniformLocation | null = null;
   private timeUniLoc: WebGLUniformLocation | null = null;
+  private modeUniLoc: WebGLUniformLocation | null = null;
   private posBuffer: WebGLBuffer | null = null;
 
   private boundOnMouseMove?: (e: MouseEvent) => void;
@@ -107,6 +114,7 @@ export class App implements AfterViewInit, OnDestroy {
       uniform vec2 u_resolution;
       uniform vec2 u_mouse;
       uniform float u_time;
+      uniform int u_mode;
 
       mat2 rot(float a) {
         float s = sin(a), c = cos(a);
@@ -177,13 +185,27 @@ export class App implements AfterViewInit, OnDestroy {
           vec3 refr = refract(rd, n, 0.85);
           float internalRef = dot(refr, vec3(0.0, 0.0, -1.0));
 
-          vec3 glassTint = vec3(0.08, 0.45, 0.75);
-          vec3 innerGlow = vec3(0.02, 0.85, 0.95) * max(internalRef, 0.0);
-          vec3 glassCol = mix(glassTint * 0.3, innerGlow, 0.6);
-          glassCol += fresnel * vec3(0.35, 0.80, 1.0) * 1.5;
-          glassCol += (spec1 * vec3(1.0, 1.0, 1.0) + spec2 * vec3(0.3, 0.8, 1.0) * 0.8);
-
-          col = mix(col, glassCol, 0.88);
+          if (u_mode == 1) {
+            // 🔮 Iridescent Cyber Liquid (Purple, Magenta & Indigo)
+            vec3 irid = 0.5 + 0.5 * cos(u_time * 0.8 + p.xyx * 2.0 + vec3(0.0, 2.0, 4.0));
+            vec3 glassCol = irid * 0.45 + fresnel * vec3(0.85, 0.35, 1.0) * 1.5;
+            glassCol += (spec1 * vec3(1.0, 0.9, 1.0) + spec2 * vec3(0.3, 0.9, 1.0) * 0.8);
+            col = mix(col, glassCol, 0.88);
+          } else if (u_mode == 2) {
+            // 🔥 Golden Honey Liquid (Warm Amber & Gold)
+            vec3 amber = vec3(0.95, 0.55, 0.12);
+            vec3 glassCol = amber * 0.4 + fresnel * vec3(1.0, 0.8, 0.35) * 1.4;
+            glassCol += (spec1 * vec3(1.0, 0.95, 0.85) + spec2 * vec3(1.0, 0.5, 0.1) * 0.8);
+            col = mix(col, glassCol, 0.88);
+          } else {
+            // 💎 Clear Blue / Cyan Liquid Glass (Default Brand Theme)
+            vec3 glassTint = vec3(0.08, 0.45, 0.75);
+            vec3 innerGlow = vec3(0.02, 0.85, 0.95) * max(internalRef, 0.0);
+            vec3 glassCol = mix(glassTint * 0.3, innerGlow, 0.6);
+            glassCol += fresnel * vec3(0.35, 0.80, 1.0) * 1.5;
+            glassCol += (spec1 * vec3(1.0, 1.0, 1.0) + spec2 * vec3(0.3, 0.8, 1.0) * 0.8);
+            col = mix(col, glassCol, 0.88);
+          }
         }
 
         gl_FragColor = vec4(col, 1.0);
@@ -218,6 +240,7 @@ export class App implements AfterViewInit, OnDestroy {
     this.resUniLoc = gl.getUniformLocation(program, 'u_resolution');
     this.mouseUniLoc = gl.getUniformLocation(program, 'u_mouse');
     this.timeUniLoc = gl.getUniformLocation(program, 'u_time');
+    this.modeUniLoc = gl.getUniformLocation(program, 'u_mode');
 
     this.posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuffer);
@@ -309,6 +332,9 @@ export class App implements AfterViewInit, OnDestroy {
     this.gl.uniform2f(this.resUniLoc, canvas.width, canvas.height);
     this.gl.uniform2f(this.mouseUniLoc, this.mouseX, this.mouseY);
     this.gl.uniform1f(this.timeUniLoc, elapsed);
+
+    const modeCode = this.liquidTheme === 'iridescent' ? 1 : this.liquidTheme === 'golden' ? 2 : 0;
+    this.gl.uniform1i(this.modeUniLoc, modeCode);
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 
