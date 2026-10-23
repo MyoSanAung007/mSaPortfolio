@@ -124,10 +124,16 @@
 
 .section {
     padding: 100px 0;
+    position: relative;
+    z-index: 1;
 }
 
 .section-alt {
-    background: var(--bg-secondary);
+    background: rgba(5, 9, 15, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 1;
 }
 
 .section-header {

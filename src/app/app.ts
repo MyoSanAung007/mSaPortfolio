@@ -281,21 +281,13 @@ export class App implements AfterViewInit, OnDestroy {
     window.addEventListener('touchmove', this.boundOnTouchMove, { passive: true });
     window.addEventListener('resize', this.boundOnResize);
 
-    // Pause rendering when hero is scrolled out of view to preserve 100% battery & performance
-    if ('IntersectionObserver' in window) {
-      this.intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            this.isCanvasVisible = entry.isIntersecting;
-            if (this.isCanvasVisible && this.animationFrameId === null) {
-              this.renderLoop();
-            }
-          });
-        },
-        { threshold: 0.05 }
-      );
-      this.intersectionObserver.observe(canvas);
-    }
+    // Pause rendering when browser tab is hidden to preserve battery & GPU performance
+    document.addEventListener('visibilitychange', () => {
+      this.isCanvasVisible = document.visibilityState !== 'hidden';
+      if (this.isCanvasVisible && this.animationFrameId === null) {
+        this.renderLoop();
+      }
+    });
 
     this.resizeCanvas();
     this.renderLoop();
@@ -305,8 +297,8 @@ export class App implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas || !this.gl) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const displayWidth = Math.floor(canvas.clientWidth * dpr);
-    const displayHeight = Math.floor(canvas.clientHeight * dpr);
+    const displayWidth = Math.floor(window.innerWidth * dpr);
+    const displayHeight = Math.floor(window.innerHeight * dpr);
     if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
       canvas.width = displayWidth;
       canvas.height = displayHeight;
