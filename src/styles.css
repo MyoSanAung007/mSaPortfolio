@@ -7,17 +7,17 @@
 }
 
 :root {
-  --bg-primary: transparent;
-  --bg-secondary: transparent;
-  --bg-card: rgba(16, 26, 38, 0.55);
-  --bg-card-hover: rgba(21, 34, 51, 0.75);
+  --bg-primary: #0a111a;
+  --bg-secondary: #05090f;
+  --bg-card: #101a26;
+  --bg-card-hover: #152233;
   --accent: #2b7bc4;
   --accent-2: #06b6d4;
   --accent-glow: rgba(43, 123, 196, 0.3);
   --text-primary: #f0f0ff;
   --text-secondary: #94b8d4;
   --text-muted: #4e7a9a;
-  --border: rgba(56, 189, 248, 0.22);
+  --border: rgba(43, 123, 196, 0.25);
   --radius: 16px;
   --radius-sm: 8px;
   --font-heading: 'Space Grotesk', sans-serif;
@@ -26,11 +26,10 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #070c14;
 }
 
 body {
-  background-color: transparent;
+  background-color: #0a111a;
   color: var(--text-primary);
   font-family: var(--font-body);
   line-height: 1.6;

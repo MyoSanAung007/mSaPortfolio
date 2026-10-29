@@ -20,6 +20,8 @@ export class App implements AfterViewInit, OnDestroy {
   private program: WebGLProgram | null = null;
   private animationFrameId: number | null = null;
   private isVisible = true;
+  private isIntersecting = true;
+  private intersectionObserver?: IntersectionObserver;
 
   private mouseX = 0;
   private mouseY = 0;
@@ -66,6 +68,9 @@ export class App implements AfterViewInit, OnDestroy {
       if (this.animationFrameId !== null) {
         cancelAnimationFrame(this.animationFrameId);
       }
+      if (this.intersectionObserver) {
+        this.intersectionObserver.disconnect();
+      }
       if (this.boundOnMouseMove) {
         window.removeEventListener('mousemove', this.boundOnMouseMove);
       }
@@ -91,8 +96,8 @@ export class App implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', { alpha: true, antialias: true }) ||
-               (canvas.getContext('experimental-webgl', { alpha: true, antialias: true }) as WebGLRenderingContext | null);
+    const gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true }) ||
+               (canvas.getContext('experimental-webgl', { alpha: true, antialias: true, premultipliedAlpha: true }) as WebGLRenderingContext | null);
     if (!gl) return;
     this.gl = gl;
 
@@ -159,9 +164,6 @@ export class App implements AfterViewInit, OnDestroy {
         vec3 ro = vec3(0.0, 0.0, 3.6);
         vec3 rd = normalize(vec3(uv, -1.35));
 
-        // Deep dark sapphire background base
-        vec3 col = mix(vec3(0.024, 0.043, 0.071), vec3(0.012, 0.024, 0.043), uv.y + 0.5);
-
         float t = 0.0;
         for (int i = 0; i < 56; i++) {
           vec3 p = ro + rd * t;
@@ -198,10 +200,11 @@ export class App implements AfterViewInit, OnDestroy {
           glassCol += fresnel * vec3(0.35, 0.78, 1.0) * 1.5;
           glassCol += (spec1 * vec3(1.0, 1.0, 1.0) + spec2 * vec3(0.3, 0.8, 1.0) * 0.75);
 
-          col = mix(col, glassCol, 0.85);
+          float alpha = clamp(0.30 + fresnel * 0.65 + spec1 * 0.85 + spec2 * 0.65, 0.0, 0.95);
+          gl_FragColor = vec4(glassCol * alpha, alpha);
+        } else {
+          gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
         }
-
-        gl_FragColor = vec4(col, 1.0);
       }
     `;
 
@@ -267,7 +270,7 @@ export class App implements AfterViewInit, OnDestroy {
 
     this.boundOnVisibilityChange = () => {
       this.isVisible = document.visibilityState !== 'hidden';
-      if (this.isVisible && this.animationFrameId === null) {
+      if (this.isVisible && this.isIntersecting && this.animationFrameId === null) {
         this.renderLoop();
       }
     };
@@ -277,6 +280,22 @@ export class App implements AfterViewInit, OnDestroy {
     window.addEventListener('resize', this.boundOnResize);
     document.addEventListener('visibilitychange', this.boundOnVisibilityChange);
 
+    // Pause rendering when hero is scrolled out of view to save battery & GPU
+    if ('IntersectionObserver' in window) {
+      this.intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            this.isIntersecting = entry.isIntersecting;
+            if (this.isIntersecting && this.isVisible && this.animationFrameId === null) {
+              this.renderLoop();
+            }
+          });
+        },
+        { threshold: 0.05 }
+      );
+      this.intersectionObserver.observe(canvas);
+    }
+
     this.resizeCanvas();
     this.renderLoop();
   }
@@ -285,8 +304,9 @@ export class App implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas || !this.gl) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const displayWidth = Math.floor(window.innerWidth * dpr);
-    const displayHeight = Math.floor(window.innerHeight * dpr);
+    const displayWidth = Math.floor(canvas.clientWidth * dpr);
+    const displayHeight = Math.floor(canvas.clientHeight * dpr);
+    if (displayWidth === 0 || displayHeight === 0) return;
     if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
       canvas.width = displayWidth;
       canvas.height = displayHeight;
@@ -295,7 +315,7 @@ export class App implements AfterViewInit, OnDestroy {
   }
 
   private renderLoop(): void {
-    if (!this.isVisible || !this.gl || !this.program) {
+    if (!this.isVisible || !this.isIntersecting || !this.gl || !this.program) {
       this.animationFrameId = null;
       return;
     }

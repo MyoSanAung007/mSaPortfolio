@@ -124,16 +124,10 @@
 
 .section {
     padding: 100px 0;
-    position: relative;
-    z-index: 1;
 }
 
 .section-alt {
-    background: rgba(5, 9, 15, 0.65);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    position: relative;
-    z-index: 1;
+    background: var(--bg-secondary);
 }
 
 .section-header {
@@ -289,52 +283,18 @@
     border-radius: 0 0 40px 40px;
 }
 
-/* ============= 3D LIQUID GLASS BACKGROUND ============= */
-.global-3d-liquid-canvas {
-    position: fixed;
+/* ============= 3D LIQUID GLASS CANVAS ============= */
+.hero-liquid-canvas {
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 0;
-    background: #060b13;
-}
-
-/* Ensure all page content floats over the 3D canvas */
-.hero,
-.section,
-.section-alt,
-.footer {
-    position: relative;
-    z-index: 1;
-    background: transparent !important;
-}
-
-/* ============= FROSTED 3D GLASS CARDS ACROSS ALL SECTIONS ============= */
-.info-card,
-.skill-category,
-.project-card,
-.tl-card,
-.contact-form,
-.hero-stats .stat {
-    background: rgba(16, 26, 38, 0.55) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(56, 189, 248, 0.22) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-
-.info-card:hover,
-.skill-category:hover,
-.project-card:hover,
-.tl-card:hover {
-    border-color: rgba(6, 182, 212, 0.55) !important;
-    box-shadow: 0 12px 40px rgba(6, 182, 212, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .hero-bg-glow {
-    display: none;
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
