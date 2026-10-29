@@ -20,8 +20,6 @@ export class App implements AfterViewInit, OnDestroy {
   private program: WebGLProgram | null = null;
   private animationFrameId: number | null = null;
   private isVisible = true;
-  private isIntersecting = true;
-  private intersectionObserver?: IntersectionObserver;
 
   private mouseX = 0;
   private mouseY = 0;
@@ -67,9 +65,6 @@ export class App implements AfterViewInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       if (this.animationFrameId !== null) {
         cancelAnimationFrame(this.animationFrameId);
-      }
-      if (this.intersectionObserver) {
-        this.intersectionObserver.disconnect();
       }
       if (this.boundOnMouseMove) {
         window.removeEventListener('mousemove', this.boundOnMouseMove);
@@ -270,7 +265,7 @@ export class App implements AfterViewInit, OnDestroy {
 
     this.boundOnVisibilityChange = () => {
       this.isVisible = document.visibilityState !== 'hidden';
-      if (this.isVisible && this.isIntersecting && this.animationFrameId === null) {
+      if (this.isVisible && this.animationFrameId === null) {
         this.renderLoop();
       }
     };
@@ -280,22 +275,6 @@ export class App implements AfterViewInit, OnDestroy {
     window.addEventListener('resize', this.boundOnResize);
     document.addEventListener('visibilitychange', this.boundOnVisibilityChange);
 
-    // Pause rendering when hero is scrolled out of view to save battery & GPU
-    if ('IntersectionObserver' in window) {
-      this.intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            this.isIntersecting = entry.isIntersecting;
-            if (this.isIntersecting && this.isVisible && this.animationFrameId === null) {
-              this.renderLoop();
-            }
-          });
-        },
-        { threshold: 0.05 }
-      );
-      this.intersectionObserver.observe(canvas);
-    }
-
     this.resizeCanvas();
     this.renderLoop();
   }
@@ -304,8 +283,8 @@ export class App implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas || !this.gl) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const displayWidth = Math.floor(canvas.clientWidth * dpr);
-    const displayHeight = Math.floor(canvas.clientHeight * dpr);
+    const displayWidth = Math.floor(window.innerWidth * dpr);
+    const displayHeight = Math.floor(window.innerHeight * dpr);
     if (displayWidth === 0 || displayHeight === 0) return;
     if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
       canvas.width = displayWidth;
@@ -315,7 +294,7 @@ export class App implements AfterViewInit, OnDestroy {
   }
 
   private renderLoop(): void {
-    if (!this.isVisible || !this.isIntersecting || !this.gl || !this.program) {
+    if (!this.isVisible || !this.gl || !this.program) {
       this.animationFrameId = null;
       return;
     }
